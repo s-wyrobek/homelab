@@ -31,8 +31,10 @@ The lab is also a playground for evaluating tooling before introducing it in lar
 | Containers (app) | Docker, Docker Compose                              |
 | DNS              | AdGuard Home (DoH upstream, DNSSEC, blocklists)     |
 | Storage / sync   | Nextcloud + MariaDB                                 |
+| Reverse proxy    | Nginx + custom internal CA + wildcard TLS           |
+| VPN              | WireGuard                                           |
 | Workstation      | EndeavourOS (workstation laptop)                    |
-| Planned          | Nginx, WireGuard, k3s, Prometheus, Grafana, Terraform, Ansible, AWS |
+| Planned          | k3s, Prometheus, Grafana, Terraform, Ansible, AWS   |
 
 ---
 
@@ -44,6 +46,8 @@ The lab is also a playground for evaluating tooling before introducing it in lar
 | debian-01   | VM   | 192.168.1.24   | Docker host (general apps)    | Debian 12       |
 | dns         | LXC  | 192.168.1.110  | AdGuard Home                  | Debian 12       |
 | nextcloud   | LXC  | 192.168.1.120  | Nextcloud + MariaDB           | Debian 12       |
+| proxy-nginx | LXC  | —              | Nginx reverse proxy + TLS     | Debian 12       |
+| wireguard   | LXC  | —              | WireGuard VPN                 | Debian 12       |
 
 Hardware: AMD Ryzen 5 3400G, 16 GB RAM, single node.
 Details in [infrastructure/proxmox/README.md](infrastructure/proxmox/README.md).
