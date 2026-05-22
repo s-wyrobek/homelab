@@ -43,7 +43,7 @@ The lab is also a playground for evaluating tooling before introducing it in lar
 
 | Host        | Type | IP             | Role                          | OS / Base       |
 |-------------|------|----------------|-------------------------------|-----------------|
-| pve         | Host | 192.168.1.100  | Proxmox VE hypervisor        | Proxmox VE 9.1  |
+| pve         | Host | 192.168.1.100  | Proxmox VE hypervisor         | Proxmox VE 9.1  |
 | debian-01   | VM   | 192.168.1.24   | k3s node (Docker + Kubernetes)| Debian 12       |
 | dns         | LXC  | 192.168.1.110  | AdGuard Home                  | Debian 12       |
 | nextcloud   | LXC  | 192.168.1.120  | Nextcloud + MariaDB           | Debian 12       |
@@ -90,7 +90,7 @@ Details in [infrastructure/network/README.md](infrastructure/network/README.md).
 ├── infrastructure/
 │   ├── proxmox/README.md  # Hypervisor + VM/LXC inventory
 │   └── network/README.md  # Topology, DNS, local domains
-├── k8s/
+├── k3s/
 │   ├── nginx-deployment.yaml
 │   └── nginx-service.yaml
 └── services/
