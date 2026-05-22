@@ -33,8 +33,9 @@ The lab is also a playground for evaluating tooling before introducing it in lar
 | Storage / sync   | Nextcloud + MariaDB                                 |
 | Reverse proxy    | Nginx + custom internal CA + wildcard TLS           |
 | VPN              | WireGuard                                           |
+| Orchestration    | k3s (single-node Kubernetes)                        |
 | Workstation      | EndeavourOS (workstation laptop)                    |
-| Planned          | k3s, Prometheus, Grafana, Terraform, Ansible, AWS   |
+| Planned          | Prometheus, Grafana, Terraform, Ansible, AWS        |
 
 ---
 
@@ -42,12 +43,12 @@ The lab is also a playground for evaluating tooling before introducing it in lar
 
 | Host        | Type | IP             | Role                          | OS / Base       |
 |-------------|------|----------------|-------------------------------|-----------------|
-| pve         | Host | 192.168.1.10   | Proxmox VE hypervisor         | Proxmox VE 9.1  |
-| debian-01   | VM   | 192.168.1.24   | Docker host (general apps)    | Debian 12       |
+| pve         | Host | 192.168.1.100  | Proxmox VE hypervisor        | Proxmox VE 9.1  |
+| debian-01   | VM   | 192.168.1.24   | k3s node (Docker + Kubernetes)| Debian 12       |
 | dns         | LXC  | 192.168.1.110  | AdGuard Home                  | Debian 12       |
 | nextcloud   | LXC  | 192.168.1.120  | Nextcloud + MariaDB           | Debian 12       |
-| proxy-nginx | LXC  | —              | Nginx reverse proxy + TLS     | Debian 12       |
-| wireguard   | LXC  | —              | WireGuard VPN                 | Debian 12       |
+| proxy-nginx | LXC  | 192.168.1.130  | Nginx reverse proxy + TLS     | Debian 12       |
+| wireguard   | LXC  | 192.168.1.140  | WireGuard VPN                 | Debian 12       |
 
 Hardware: AMD Ryzen 5 3400G, 16 GB RAM, single node.
 Details in [infrastructure/proxmox/README.md](infrastructure/proxmox/README.md).
@@ -89,6 +90,9 @@ Details in [infrastructure/network/README.md](infrastructure/network/README.md).
 ├── infrastructure/
 │   ├── proxmox/README.md  # Hypervisor + VM/LXC inventory
 │   └── network/README.md  # Topology, DNS, local domains
+├── k8s/
+│   ├── nginx-deployment.yaml
+│   └── nginx-service.yaml
 └── services/
     ├── dns/README.md      # AdGuard Home
     └── nextcloud/         # Nextcloud stack
@@ -105,10 +109,10 @@ Details in [infrastructure/network/README.md](infrastructure/network/README.md).
 - [x] LAN segmented, managed switch in place
 - [x] AdGuard Home as local resolver (DoH, DNSSEC, blocklists)
 - [x] Nextcloud + MariaDB on a dedicated LXC
-- [ ] Nginx reverse proxy in front of internal services
-- [ ] WireGuard VPN for remote access
-- [ ] Custom internal CA + TLS for all `.home` services
-- [ ] k3s cluster on top of LXC/VM workers
+- [x] Nginx reverse proxy in front of internal services
+- [x] WireGuard VPN for remote access
+- [x] Custom internal CA + TLS for all `.home` services
+- [x] k3s cluster on top of LXC/VM workers
 - [ ] Prometheus + Grafana for metrics and dashboards
 - [ ] Terraform for Proxmox provisioning
 - [ ] Ansible for configuration management
