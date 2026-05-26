@@ -31,11 +31,15 @@ The lab is also a playground for evaluating tooling before introducing it in lar
 | Containers (app) | Docker, Docker Compose                              |
 | DNS              | AdGuard Home (DoH upstream, DNSSEC, blocklists)     |
 | Storage / sync   | Nextcloud + MariaDB                                 |
-| Reverse proxy    | Nginx + custom internal CA + wildcard TLS           |
-| VPN              | WireGuard                                           |
-| Orchestration    | k3s (single-node Kubernetes)                        |
-| Workstation      | EndeavourOS (workstation laptop)                    |
-| Planned          | Prometheus, Grafana, Terraform, Ansible, AWS        |
+| Reverse proxy    | Nginx (LXC 192.168.1.130)                           |
+| VPN              | WireGuard (LXC 192.168.1.140)                       |
+| TLS              | Self-signed CA, wildcard *.home cert                |
+| Kubernetes       | k3s (single-node, debian-01)                        |
+| Ingress          | Traefik (bundled with k3s)                          |
+| Package manager  | Helm 3                                              |
+| Monitoring       | Prometheus + Grafana (via Helm)                     |
+| Automation       | n8n (via Helm, namespace: n8n)                      |
+| Planned          | Terraform, Ansible, AWS                             |
 
 ---
 
@@ -47,8 +51,8 @@ The lab is also a playground for evaluating tooling before introducing it in lar
 | debian-01   | VM   | 192.168.1.24   | k3s node (Docker + Kubernetes)| Debian 12       |
 | dns         | LXC  | 192.168.1.110  | AdGuard Home                  | Debian 12       |
 | nextcloud   | LXC  | 192.168.1.120  | Nextcloud + MariaDB           | Debian 12       |
-| proxy-nginx | LXC  | 192.168.1.130  | Nginx reverse proxy + TLS     | Debian 12       |
-| wireguard   | LXC  | 192.168.1.140  | WireGuard VPN                 | Debian 12       |
+| proxy-nginx | LXC  | 192.168.1.130  | Nginx reverse proxy           | Debian 12       |
+| vpn         | LXC  | 192.168.1.140  | WireGuard VPN                 | Debian 12       |
 
 Hardware: AMD Ryzen 5 3400G, 16 GB RAM, single node.
 Details in [infrastructure/proxmox/README.md](infrastructure/proxmox/README.md).
@@ -113,7 +117,7 @@ Details in [infrastructure/network/README.md](infrastructure/network/README.md).
 - [x] WireGuard VPN for remote access
 - [x] Custom internal CA + TLS for all `.home` services
 - [x] k3s cluster on top of LXC/VM workers
-- [ ] Prometheus + Grafana for metrics and dashboards
+- [x] Prometheus + Grafana for metrics and dashboards
 - [ ] Terraform for Proxmox provisioning
 - [ ] Ansible for configuration management
 - [ ] AWS integration (off-site backups, then more)
