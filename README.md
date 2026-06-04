@@ -38,9 +38,11 @@ The lab is also a playground for evaluating tooling before introducing it in lar
 | Ingress          | Traefik (bundled with k3s)                          |
 | Package manager  | Helm 3                                              |
 | Monitoring       | Prometheus + Grafana (via Helm)                     |
+| Dashboard        | Homepage (via Helm, Traefik ingress)                |
 | Automation       | n8n (via Helm, namespace: n8n)                      |
 | IaC              | Terraform (bpg/proxmox provider)                    |
-| Planned          | Ansible, AWS                                        |
+| Config mgmt      | Ansible (inventory + playbooks)                     |
+| Planned          | AWS integration, SOPS secrets management            |
 
 ---
 
@@ -100,14 +102,25 @@ Details in [infrastructure/network/README.md](infrastructure/network/README.md).
 │           ├── main.tf                # Provider config (bpg/proxmox)
 │           └── lxc-dns.tf            # dns LXC (AdGuard Home)
 ├── k3s/
+│   ├── homepage-ingress.yaml          # Homepage Traefik ingress
+│   ├── grafana-ingress.yaml
+│   ├── prometheus-ingress.yaml
+│   ├── n8n-ingress.yaml
 │   ├── nginx-deployment.yaml
-│   └── nginx-service.yaml
-└── services/
-    ├── dns/README.md                  # AdGuard Home
-    └── nextcloud/                     # Nextcloud stack
-        ├── README.md
-        ├── docker-compose.yml
-        └── .env.example
+│   ├── nginx-service.yaml
+│   └── README.md
+├── services/
+│   ├── dns/README.md                  # AdGuard Home
+│   ├── homepage/                      # Homepage dashboard
+│   │   └── homepage-values.yaml       # Helm values (edit locally)
+│   ├── nextcloud/                     # Nextcloud stack
+│   │   ├── README.md
+│   │   ├── docker-compose.yml
+│   │   └── .env.example
+│   ├── nginx/README.md                # Nginx reverse proxy
+│   └── wireguard/README.md            # WireGuard VPN
+└── ansible/
+    └── inventory.yaml                 # Ansible hosts and variables
 ```
 
 ---
@@ -124,10 +137,40 @@ Details in [infrastructure/network/README.md](infrastructure/network/README.md).
 - [x] k3s cluster on top of LXC/VM workers
 - [x] Prometheus + Grafana for metrics and dashboards
 - [x] Terraform for Proxmox provisioning (in progress — dns LXC imported)
-- [ ] Ansible for configuration management
+- [x] Homepage dashboard with service widgets and status monitoring
+- [x] Ansible inventory for configuration management (playbooks in progress)
 - [ ] AWS integration (off-site backups, then more)
+- [ ] Secrets management with SOPS or Vault
 
 Detailed plan: [docs/roadmap.md](docs/roadmap.md).
+
+---
+
+## Security & Credentials
+
+This repository is **public** and follows security best practices:
+
+- **Secrets excluded from git**: `.env` files, `credentials.auto.tfvars`, and `*.tfstate` are in `.gitignore`.
+- **Example files committed**: `.env.example` and `credentials.auto.tfvars.example` document expected variables.
+- **Placeholder values**: Files like `services/homepage/homepage-values.yaml` and Terraform credentials use `CHANGE_ME_*` placeholders.
+- **Local override**: Copy `.example` files to their non-example equivalents locally and fill in real values before deployment.
+
+Example setup:
+```bash
+# Terraform
+cp infrastructure/terraform/proxmox/credentials.auto.tfvars.example \
+   infrastructure/terraform/proxmox/credentials.auto.tfvars
+# Edit with your actual Proxmox API token
+
+# Nextcloud
+cp services/nextcloud/.env.example services/nextcloud/.env
+# Edit with your actual database and admin passwords
+```
+
+Before using this repo in production:
+1. Review all `CHANGE_ME_*` placeholders
+2. Inject real credentials via `.env`, environment variables, or a secrets manager
+3. Plan migration to SOPS or Vault for encrypted secrets in git (see [docs/roadmap.md](docs/roadmap.md))
 
 ---
 
