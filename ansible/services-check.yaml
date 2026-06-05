@@ -1,0 +1,35 @@
+- hosts: nginx
+  become: yes
+  tasks:
+    - name: ensure nginx is running
+      ansible.builtin.systemd:
+        name: nginx
+        state: started
+        enabled: yes
+
+- hosts: dns
+  become: yes
+  tasks:
+    - name: ensure dns is running
+      ansible.builtin.systemd:
+        name: AdGuardHome
+        state: started
+        enabled: yes
+
+- hosts: nextcloud
+  become: yes
+  tasks:
+    - name: ensure docker is running
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+- hosts: wireguard
+  become: yes
+  tasks:
+    - name: ensure wireguard is running
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: yes
