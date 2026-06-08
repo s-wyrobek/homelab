@@ -13,7 +13,7 @@ config:
               type: proxmox
               url: https://192.168.1.100:8006
               username: root@pam!homepage
-              password: CHANGE_ME_PROXMOX_PASSWORD
+              password: 4310746d-f060-4ec5-a12d-2a9f04b566be
               node: Proxmox
               verify: false
               fields: ["vms", "lxc", "cpu", "mem"]
@@ -25,7 +25,7 @@ config:
               type: adguard
               url: http://192.168.1.110
               username: szymon
-              password: CHANGE_ME_ADGUARD_PASSWORD
+              password: 'McB5fxWBH9g8eA7'
         - Router:
             href: "http://router.home"
             description: 5G CPE
@@ -43,7 +43,7 @@ config:
               type: nextcloud
               url: http://192.168.1.120:8080
               username: admin
-              password: CHANGE_ME_NEXTCLOUD_PASSWORD
+              password: 'KZ7yE#w9ZpLF%w#l6F'
         - WireGuard:
             href: "http://192.168.1.140:51821"
             description: VPN
@@ -51,7 +51,7 @@ config:
             widget:
               type: wgeasy
               url: http://192.168.1.140:51821
-              password: CHANGE_ME_WIREGUARD_PASSWORD
+              password: '9!2JH%&o7X5C^fd'
     - K3s:
         - Grafana:
             href: "http://grafana.home"
@@ -61,7 +61,7 @@ config:
               type: grafana
               url: http://grafana.home
               username: admin
-              password: CHANGE_ME_GRAFANA_PASSWORD
+              password: 'Zs8i34K1n3jrq1HlgNwAbzpwG0mFLGSt5AV6onJA'
         - Prometheus:
             href: "http://prometheus.home"
             description: Monitoring
@@ -86,6 +86,10 @@ config:
             href: "https://github.com/s-wyrobek/homelab/tree/main/infrastructure/ansible"
             description: Configuration management
             icon: ansible.png
+        - LocalStack:
+            href: "https://app.localstack.cloud"
+            description: AWS emulator
+            icon: aws.png
 
 widgets:
     - greeting:

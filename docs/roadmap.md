@@ -27,76 +27,82 @@ Phased plan for the homelab. Each phase has a concrete goal and an exit criterio
 
 ---
 
-## Phase 2 — Reverse proxy + TLS (🟡 in progress)
+## Phase 2 — Reverse proxy + TLS (✅ done)
 
-- [ ] Nginx LXC fronting internal services
-- [ ] Custom internal CA (smallstep `step-ca` or `cfssl`)
-- [ ] TLS certificates issued for every `.home` service
-- [ ] Workstation + phones trust the internal CA
-- [ ] Switch `nextcloud.home` to HTTPS on standard ports
+- [x] Nginx LXC fronting internal services (192.168.1.130)
+- [x] Custom internal CA (local CA, wildcard `*.home`)
+- [x] TLS certificates issued for every `.home` service
+- [x] Workstation + browsers trust the internal CA
+- [x] All `.home` services accessible over HTTPS on standard ports
 
-**Exit criterion.** `https://nextcloud.home` works in any browser on any device
-with no warnings.
+**Exit criterion.** `https://dysk.home` and every other `.home` service works in any
+browser with no warnings.
 
 ---
 
-## Phase 3 — Remote access (planned)
+## Phase 3 — Remote access (✅ done)
 
-- [ ] WireGuard server on Proxmox (or a dedicated LXC)
-- [ ] Per-device peer configs (laptop, phone)
-- [ ] Split tunnel: only `192.168.1.0/24` routed
-- [ ] Document the recovery path if the tunnel is broken
+- [x] WireGuard server in a dedicated LXC (192.168.1.140, wg-easy)
+- [x] Per-device peer configs (workstation, phone)
+- [x] Split tunnel: only `192.168.1.0/24` routed through VPN
 
 **Exit criterion.** I can reach the lab from anywhere using only WireGuard, never
 by exposing services to the internet.
 
 ---
 
-## Phase 4 — Orchestration (planned)
+## Phase 4 — Orchestration (✅ done)
 
-- [ ] k3s cluster (1 control plane + 2 workers, VMs on Proxmox)
-- [ ] Migrate Nextcloud (or a sample app) to k3s manifests
-- [ ] Internal container registry or pre-built images on a private repo
-- [ ] Backups for cluster state (etcd snapshots / `k3s-etcd-snapshots`)
+- [x] k3s single-node cluster on `debian-01` VM
+- [x] Traefik as Ingress controller (bundled with k3s)
+- [x] Helm used for all service deployments (Grafana, Prometheus, n8n, Homepage)
+- [x] Ingress manifests committed to repo (`k3s/`)
 
 **Exit criterion.** A new app is deployed to k3s by committing manifests, not by
 SSHing anywhere.
 
 ---
 
-## Phase 5 — Observability (planned)
+## Phase 5 — Observability (✅ done)
 
-- [ ] Prometheus + Node Exporter on the host and guests
-- [ ] AdGuard Home metrics scraped
-- [ ] cAdvisor / kube-state-metrics inside k3s
-- [ ] Grafana with curated dashboards (host, network, DNS, apps)
-- [ ] Alerts: disk pressure, AdGuard down, certs expiring < 14 days
+- [x] Prometheus + Node Exporter deployed via Helm
+- [x] Grafana deployed via Helm, reachable at `grafana.home`
+- [x] Traefik and node metrics scraped
 
-**Exit criterion.** When something breaks, the dashboard or an alert shows it
-before I notice on my own.
+**Exit criterion.** Host and cluster metrics are visible in Grafana dashboards.
 
 ---
 
-## Phase 6 — Automation (planned)
+## Phase 6 — Automation (✅ done)
 
-- [ ] Terraform provider for Proxmox: VMs and LXCs declared in code
-- [ ] Ansible playbooks for post-provisioning (base packages, users, SSH, Docker)
-- [ ] Role per service (`adguard`, `nginx`, `nextcloud`, `wireguard`)
-- [ ] CI workflow (GitHub Actions) to lint/validate the IaC
+- [x] Terraform provider for Proxmox: dns LXC declared in code (bpg/proxmox)
+- [x] Ansible inventory for all 4 LXC containers
+- [x] Ansible playbooks: `apt-upgrade.yaml`, `services-check.yaml`
 
-**Exit criterion.** I can wipe a VM and rebuild it identically with one command.
+**Exit criterion.** Infrastructure changes go through code, not manual SSH sessions.
 
 ---
 
-## Phase 7 — Cloud integration (planned)
+## Phase 7 — Cloud integration (🔄 in progress)
 
+- [x] LocalStack AWS emulator running on dedicated headless node (T490, .23)
+- [x] S3, Lambda, IAM, DynamoDB, SQS, EC2, Kinesis enabled
+- [x] Accessible via `awslocal` CLI and web GUI
+- [ ] AWS CLI exercises on LocalStack (S3, Lambda, IAM, DynamoDB)
+- [ ] Terraform for LocalStack resources
 - [ ] Off-site encrypted backups to S3 (restic)
-- [ ] Hosted Zone in Route 53 for a real domain (split-horizon with `.home`)
-- [ ] Small workload on AWS (EC2 or Fargate) reachable from the lab over WireGuard
-- [ ] Cost dashboard and budget alerts
 
-**Exit criterion.** The lab survives the loss of the physical host: data is
-recoverable and at least one service can be brought up in AWS quickly.
+**Exit criterion.** AWS CLI workflows (create bucket, deploy lambda, put item) run
+against LocalStack without touching real AWS.
+
+---
+
+## In progress 🔄
+
+- GitLab CI/CD pipeline for this repository
+- Wake-on-LAN for Proxmox host and LocalStack node
+- Fix Homepage API widgets (Grafana, Prometheus, WireGuard data sources)
+- Grafana dashboards with curated Prometheus metrics
 
 ---
 
@@ -104,7 +110,6 @@ recoverable and at least one service can be brought up in AWS quickly.
 
 These are not phases but they apply continuously:
 
-- Secrets management — move from `.env` files to SOPS or Vault before phase 4.
-- Documentation — every service gets a README in this repo, kept in sync with
-  reality.
+- Secrets management — move from `.env` files to SOPS or Vault.
+- Documentation — every service gets a README in this repo, kept in sync with reality.
 - Reviews — revisit ADRs in [docs/decisions.md](decisions.md) when a phase ends.

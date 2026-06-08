@@ -42,11 +42,13 @@ Remote access is planned through WireGuard, not by exposing the Proxmox UI.
 
 ## VMs and LXC
 
-| ID  | Hostname    | Type | IP             | vCPU | RAM    | Role                       |
-|-----|-------------|------|----------------|------|--------|----------------------------|
-| 101 | debian-01   | VM   | 192.168.1.24   | 2    | 4 GB   | General-purpose Docker host|
-| 110 | dns         | LXC  | 192.168.1.110  | 1    | 512 MB | AdGuard Home               |
-| 120 | nextcloud   | LXC  | 192.168.1.120  | 2    | 2 GB   | Nextcloud + MariaDB        |
+| ID  | Hostname    | Type | IP             | vCPU | RAM    | Role                                         |
+|-----|-------------|------|----------------|------|--------|----------------------------------------------|
+| 101 | debian-01   | VM   | 192.168.1.24   | 2    | 4 GB   | k3s node (Traefik, Grafana, Prometheus, n8n) |
+| 110 | dns         | LXC  | 192.168.1.110  | 1    | 512 MB | AdGuard Home                                 |
+| 120 | nextcloud   | LXC  | 192.168.1.120  | 2    | 2 GB   | Nextcloud + MariaDB                          |
+| 130 | nginx       | LXC  | 192.168.1.130  | 1    | 512 MB | Nginx reverse proxy + wildcard TLS           |
+| 140 | wireguard   | LXC  | 192.168.1.140  | 1    | 512 MB | WireGuard VPN (wg-easy)                      |
 
 LXC is preferred for single-purpose services with a small footprint (DNS, web apps).
 VMs are used where a full kernel is required (Docker host, future k3s nodes).

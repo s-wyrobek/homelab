@@ -9,3 +9,6 @@ credentials*
 
 # Environment variables
 .env
+
+# Local CA directory
+homelab-ca/
