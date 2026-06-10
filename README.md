@@ -54,7 +54,7 @@ The lab is also a playground for evaluating tooling before introducing it in lar
 | Dashboard | Homepage |
 | IaC | Terraform (bpg/proxmox provider) |
 | Config management | Ansible |
-| AWS emulation | LocalStack (community, Docker) |
+| AWS emulation | LocalStack Pro (free tier), Docker Compose |
 | Workstation OS | Ubuntu 26.04 LTS |
 
 ---
@@ -160,12 +160,31 @@ Deployed on `debian-01` (192.168.1.24) via Helm:
 
 ## LocalStack
 
-LocalStack runs as a Docker container on `T490/localstack` (192.168.1.23).
-Accessible via:
-- **AWS CLI**: `awslocal s3 ls` (endpoint auto-set to `http://192.168.1.23:4566`)
-- **Web GUI**: `https://app.localstack.cloud` → instance `localhost.localstack.cloud:4566`
+**LocalStack Pro (free tier)** runs on `T490/localstack` (192.168.1.23) via Docker Compose.
 
-Enabled services: `s3`, `lambda`, `iam`, `dynamodb`, `sqs`, `ec2`, `kinesis`
+- **Bind mount**: `./data:/var/lib/localstack` (persistence is a Pro-only feature; the mount keeps logs/tmp but state is **not** preserved across restarts)
+- **Auth token**: managed via `localstack/.env` (not committed); see `localstack/.env.example` for the required variable
+- **Enabled services**: `s3`, `lambda`, `iam`, `dynamodb`, `sqs`, `ec2`, `kinesis`
+
+### Access
+
+- **AWS CLI**: `awslocal s3 ls` (endpoint auto-set to `http://192.168.1.23:4566`)
+- **Web GUI**: `https://app.localstack.cloud` → connect instance `localhost.localstack.cloud:4566`
+
+### State initialization
+
+Because state is lost on restart, `localstack/init-localstack.sh` is run after each `docker compose up` to recreate resources:
+
+| Resource | Details |
+|---|---|
+| S3 buckets | `app-logs`, `app-backups` |
+| IAM user | `szymon-cloud-engineer` with `AmazonS3FullAccess` policy |
+| SQS queue | `app-events` |
+| DynamoDB table | `app-data` — HASH key `id` (STRING), billing: PAY_PER_REQUEST |
+
+The script uses a retry loop: polls the health endpoint with `curl` and `grep` until the S3 service status matches `available\|running`, then provisions resources.
+
+> **Quirk**: LocalStack reports `available` before a service is first used, then switches to `running`. The health check regex must match both states or the loop exits too early.
 
 ---
 

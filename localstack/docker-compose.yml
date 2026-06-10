@@ -1,0 +1,15 @@
+services:
+  localstack:
+    image: localstack/localstack-pro:latest
+    container_name: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
+      - SERVICES=s3,lambda,iam,dynamodb,sqs,ec2,kinesis
+      - DEBUG=0
+      - EXTRA_CORS_ALLOWED_ORIGINS=https://app.localstack.cloud
+    volumes:
+      - ./data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
