@@ -20,31 +20,65 @@ wait_for_localstack() {
 wait_for_localstack
 
 #S3
-echo "Creating buckets..."
-$AWS_CMD s3 mb s3://app-logs
-$AWS_CMD s3 mb s3://app-backups
-echo "Buckets ready"
+
+create_bucket_if_not_exists() {
+  if $AWS_CMD s3 ls s3://$1 &>/dev/null; then
+    echo "$1 already exists"
+  else
+    echo "Creating $1..."
+    $AWS_CMD s3 mb s3://$1
+  fi
+}
+create_bucket_if_not_exists app-logs
+create_bucket_if_not_exists app-backups
+
+
 
 #IAM
-echo "Creating IAM user"
-$AWS_CMD iam create-user --user-name szymon-cloud-engineer
-$AWS_CMD iam attach-user-policy \
-   --user-name szymon-cloud-engineer \
-   --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
-echo "IAM ready"
+
+create_user_if_not_exists() {
+  if $AWS_CMD iam get-user --user-name $1 &>/dev/null; then
+    echo "$1 already exists"
+  else
+    echo "Creating IAM user"
+      $AWS_CMD iam create-user --user-name $1
+      $AWS_CMD iam attach-user-policy \
+        --user-name $1 \
+        --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
+      echo "IAM ready"
+  fi
+}
+create_user_if_not_exists szymon-cloud-engineer
+
+
 
 #SQS
-echo "Creating SQS queue..."
-$AWS_CMD sqs create-queue --queue-name app-events
-echo "SQS ready"
 
-echo "Creating DynamoDB table..."
-$AWS_CMD dynamodb create-table \
-  --table-name app-data \
-  --attribute-definitions AttributeName=id,AttributeType=S \
-  --key-schema AttributeName=id,KeyType=HASH \
-  --billing-mode PAY_PER_REQUEST
-echo "DynamoDB ready"
+create_sqs_if_not_exists() {
+  if $AWS_CMD sqs get-queue-url --queue-name $1 &>/dev/null; then
+    echo "$1 already exists"
+  else 
+    echo "Creating SQS queue..."
+    $AWS_CMD sqs create-queue --queue-name $1
+    echo "SQS ready"
+  fi
+}
+create_sqs_if_not_exists app-events
+
+create_dynamodb_if_not_exists() {
+  if $AWS_CMD dynamodb describe-table --table-name $1 &>/dev/null; then
+    echo "$1 already exists"
+  else
+    echo "Creating DynamoDB table..."
+    $AWS_CMD dynamodb create-table \
+      --table-name $1 \
+      --attribute-definitions AttributeName=id,AttributeType=S \
+      --key-schema AttributeName=id,KeyType=HASH \
+      --billing-mode PAY_PER_REQUEST
+    echo "DynamoDB ready"
+  fi
+}
+create_dynamodb_if_not_exists app-table
 
 echo "---------------------------------"
 echo "------LocalStack Initialized-----"
