@@ -1,4 +1,9 @@
 all:
+  hosts:
+    ninkear:
+      ansible_host: localhost
+      ansible_connection: local 
+      ansible_user: szymon
   children:
     lxc:
       hosts:

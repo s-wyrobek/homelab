@@ -1,0 +1,34 @@
+---
+- name: Configure Ninkear workstation
+  hosts: ninkear
+  connection: local
+  become: false
+
+  tasks:
+    - name: Install required packages
+      become: true
+      apt:
+        name:
+          - wakeonlan
+        state: present
+        update_cache: false
+
+    - name: Set Firefox DNS local domains
+      lineinfile:
+        path: /etc/firefox/syspref.js
+        line: 'pref("network.dns.localDomains", "localhost.localstack.cloud");'
+        create: true
+      become: true
+
+    - name: Ensure aliases exist in ~/.zshrc
+      blockinfile:
+        path: "{{ ansible_env.HOME }}/.zshrc"
+        marker: "# {mark} ANSIBLE MANAGED - homelab aliases"
+        block: |
+          alias bat='batcat'
+          alias k='sudo kubectl'
+          alias tf='terraform'
+          alias dc='docker compose'
+          alias ll='ls -la'
+          alias lab-up='~/Project/homelab/scripts/lab-up.sh'
+          alias lab-down='~/Project/homelab/scripts/lab-down.sh'
