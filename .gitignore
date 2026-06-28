@@ -13,4 +13,6 @@ localstack/.env
 
 # Local CA directory
 homelab-ca/
+
+# AI
 CLAUDE.md
