@@ -5,6 +5,7 @@ credentials*
 *.tfstate.backup
 *.tfvars
 .terraform
+.terraform.tfvars
 .terraform.lock.hcl
 
 # Environment variables
@@ -16,3 +17,4 @@ homelab-ca/
 
 # AI
 CLAUDE.md
+*.tfstate.*
