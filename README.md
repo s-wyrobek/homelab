@@ -20,7 +20,7 @@ Used as a learning environment for infrastructure, networking, automation, and s
 | DNS              | AdGuard Home (DoH upstream, DNSSEC, blocklists)                         |
 | Monitoring       | Zabbix (Proxmox + LXC), Grafana + Prometheus (k3s)                     |
 | IaC              | Terraform (`bpg/proxmox` provider), Ansible                             |
-| Secrets          | 1Password (manual), Vault (planned)                                     |
+| Secrets          | BitWarden (manual), Vault (planned)                                     |
 | Cloud emulation  | LocalStack Pro (AWS: S3, IAM, SQS, DynamoDB)                           |
 | Workstation      | Ninkear A15 Plus — Ubuntu 26.04, zsh + OhMyZsh + Starship              |
 
