@@ -24,7 +24,7 @@ resource "proxmox_virtual_environment_container" "VPNwireguard" {
 
   disk {
     datastore_id = "local-lvm"
-    size         = 2
+    size         = 4
   }
 
   network_interface {
