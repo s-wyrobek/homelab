@@ -1,0 +1,37 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  gitleaks:
+    name: Scan for leaked secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  block-state-files:
+    name: Block Terraform state files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if tfstate files are tracked
+        run: |
+          FOUND=$(find . -name "terraform.tfstate*" -not -path "./.git/*")
+          if [ -n "$FOUND" ]; then
+            echo "Found terraform.tfstate files in repo:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "No tfstate files found in repo"
