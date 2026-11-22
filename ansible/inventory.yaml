@@ -2,19 +2,34 @@ all:
   hosts:
     ninkear:
       ansible_host: localhost
-      ansible_connection: local 
+      ansible_connection: local
       ansible_user: szymon
   children:
+    # Proxmox LXC containers — VMID = last IP octet (192.168.1.<VMID>).
+    # ansible_host values are aliases from ~/.ssh/config.
     lxc:
       hosts:
-        dns:
-          ansible_host: proxmox-dns
         nextcloud:
-          ansible_host: proxmox-dysk
+          ansible_host: disk-nextcloud    # LXC 102, 192.168.1.102
         nginx:
-          ansible_host: proxmox-nginx
-        wireguard:
-          ansible_host: proxmox-vpn
+          ansible_host: proxy-nginx       # LXC 103, 192.168.1.103
+        zabbix:
+          ansible_host: monitor-zabbix    # LXC 105, 192.168.1.105
+        vault:
+          ansible_host: secrets-vault     # LXC 106, 192.168.1.106
+        floci:
+          ansible_host: cloud-floci       # LXC 107, 192.168.1.107
+        homepage:
+          ansible_host: dash-homepage     # LXC 108, 192.168.1.108
+      vars:
+        ansible_user: szymon
+        ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+        ansible_python_interpreter: /usr/bin/python3
+        ansible_ssh_extra_args: '-o IdentityAgent=none'
+    vms:
+      hosts:
+        k3s:
+          ansible_host: debian-k3s        # VM 100 (Debian-01), 192.168.1.24
       vars:
         ansible_user: szymon
         ansible_ssh_private_key_file: ~/.ssh/id_ed25519

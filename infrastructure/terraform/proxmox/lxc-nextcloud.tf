@@ -4,10 +4,10 @@ resource "proxmox_virtual_environment_container" "nextcloud" {
   unprivileged = true
 
   initialization {
-    hostname = "nextcloud"
+    hostname = "Disk-Nextcloud"
     ip_config {
       ipv4 {
-        address = "192.168.1.120/24"
+        address = "192.168.1.102/24"
         gateway = "192.168.1.1"
       }
     }

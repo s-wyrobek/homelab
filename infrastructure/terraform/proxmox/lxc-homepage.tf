@@ -1,13 +1,13 @@
-resource "proxmox_virtual_environment_container" "dns" {
+resource "proxmox_virtual_environment_container" "homepage" {
   node_name    = "Proxmox"
-  vm_id        = 101
+  vm_id        = 108
   unprivileged = true
 
   initialization {
-    hostname = "dns"
+    hostname = "Dash-Homepage"
     ip_config {
       ipv4 {
-        address = "192.168.1.110/24"
+        address = "192.168.1.108/24"
         gateway = "192.168.1.1"
       }
     }
@@ -18,19 +18,23 @@ resource "proxmox_virtual_environment_container" "dns" {
   }
 
   memory {
-    dedicated = 256
-    swap      = 256
+    dedicated = 1024
+    swap      = 512
   }
 
   disk {
     datastore_id = "local-lvm"
-    size         = 4
+    size         = 8
   }
 
   network_interface {
     name     = "eth0"
     bridge   = "vmbr0"
     firewall = true
+  }
+
+  features {
+    nesting = true
   }
 
   operating_system {

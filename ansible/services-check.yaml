@@ -1,35 +1,44 @@
-- hosts: nginx
-  become: yes
+---
+- name: Ensure nginx is running
+  hosts: nginx
+  become: true
   tasks:
-    - name: ensure nginx is running
+    - name: Ensure nginx is running
       ansible.builtin.systemd:
         name: nginx
         state: started
-        enabled: yes
+        enabled: true
 
-- hosts: dns
-  become: yes
+- name: Ensure Zabbix server is running
+  hosts: zabbix
+  become: true
   tasks:
-    - name: ensure dns is running
+    - name: Ensure zabbix-server is running
       ansible.builtin.systemd:
-        name: AdGuardHome
+        name: zabbix-server
         state: started
-        enabled: yes
+        enabled: true
 
-- hosts: nextcloud
-  become: yes
+- name: Ensure Vault is running
+  hosts: vault
+  become: true
   tasks:
-    - name: ensure docker is running
+    # Only checks the systemd unit. After a restart Vault is sealed and
+    # still needs a Shamir unseal (3-of-5) — this play does not do that.
+    - name: Ensure vault is running
+      ansible.builtin.systemd:
+        name: vault
+        state: started
+        enabled: true
+
+# Nextcloud, Cloud-Floci and Homepage all run as Docker Compose stacks,
+# so the docker daemon is the unit to check.
+- name: Ensure Docker-based stacks are running
+  hosts: nextcloud:floci:homepage
+  become: true
+  tasks:
+    - name: Ensure docker is running
       ansible.builtin.systemd:
         name: docker
         state: started
-        enabled: yes
-
-- hosts: wireguard
-  become: yes
-  tasks:
-    - name: ensure wireguard is running
-      ansible.builtin.systemd:
-        name: docker
-        state: started
-        enabled: yes
+        enabled: true

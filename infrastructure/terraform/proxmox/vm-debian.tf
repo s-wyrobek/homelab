@@ -1,7 +1,7 @@
 resource "proxmox_virtual_environment_vm" "debian_01" {
   node_name = "Proxmox"
   vm_id     = 100
-  name      = "deian-01"
+  name      = "Debian-01"
 
   cpu {
     cores = 4

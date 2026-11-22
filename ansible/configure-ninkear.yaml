@@ -7,23 +7,25 @@
   tasks:
     - name: Install required packages
       become: true
-      apt:
+      ansible.builtin.apt:
         name:
           - wakeonlan
         state: present
         update_cache: false
 
     - name: Set Firefox DNS local domains
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /etc/firefox/syspref.js
         line: 'pref("network.dns.localDomains", "localhost.localstack.cloud");'
         create: true
+        mode: "0644"
       become: true
 
     - name: Ensure aliases exist in ~/.zshrc
-      blockinfile:
+      ansible.builtin.blockinfile:
         path: "{{ ansible_env.HOME }}/.zshrc"
         marker: "# {mark} ANSIBLE MANAGED - homelab aliases"
+        mode: "0644"
         block: |
           alias bat='batcat'
           alias k='sudo kubectl'

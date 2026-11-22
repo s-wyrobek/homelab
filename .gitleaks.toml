@@ -1,0 +1,36 @@
+title = "homelab gitleaks config"
+
+[extend]
+# keep all of gitleaks' built-in rules (generic API keys, AWS keys, private keys, etc.)
+useDefault = true
+
+[[rules]]
+id = "netbird-token"
+description = "NetBird API token / setup key"
+regex = '''(?i)(netbird[_-]?(api[_-]?token|setup[_-]?key))\s*[=:]\s*['\"]?[A-Za-z0-9\-_.]{20,}['\"]?'''
+tags = ["netbird", "secret"]
+
+[[rules]]
+id = "vault-token"
+description = "HashiCorp Vault token"
+regex = '''(?i)(vault[_-]?token|VAULT_TOKEN)\s*[=:]\s*['\"]?(hv[sb]\.[A-Za-z0-9._\-]{20,}|[A-Za-z0-9.\-_]{20,})['\"]?'''
+tags = ["vault", "secret"]
+
+[[rules]]
+id = "proxmox-api-token"
+description = "Proxmox VE API token"
+regex = '''(?i)PVEAPIToken\s*=\s*['\"]?[\w@!.\-]+![\w\-]+=[\w\-]+['\"]?'''
+tags = ["proxmox", "secret"]
+
+[[rules]]
+id = "wireguard-private-key"
+description = "WireGuard private key (base64, 44 chars incl. padding)"
+regex = '''(?i)(private[_-]?key)\s*[=:]\s*['\"]?[A-Za-z0-9+/]{43}=['\"]?'''
+tags = ["wireguard", "secret"]
+
+[allowlist]
+description = "ignore example/template files"
+paths = [
+  '''.*\.env\.example$''',
+  '''.*terraform\.tfvars\.example$''',
+]

@@ -4,10 +4,10 @@ resource "proxmox_virtual_environment_container" "ProxmoxZabbix" {
   unprivileged = true
 
   initialization {
-    hostname = "zabbix"
+    hostname = "Monitor-Zabbix"
     ip_config {
       ipv4 {
-        address = "192.168.1.150/24"
+        address = "192.168.1.105/24"
         gateway = "192.168.1.1"
       }
     }
@@ -30,7 +30,7 @@ resource "proxmox_virtual_environment_container" "ProxmoxZabbix" {
   network_interface {
     name        = "eth0"
     bridge      = "vmbr0"
-    mac_address = "BC:24:11:CA:46:CB"  # sztywno, żeby import nie próbował zmieniać MAC
+    mac_address = "BC:24:11:CA:46:CB" # sztywno, żeby import nie próbował zmieniać MAC
   }
 
   features {
@@ -49,8 +49,8 @@ resource "proxmox_virtual_environment_container" "ProxmoxZabbix" {
       initialization[0].dns,
       console,
       features,
-      description,  # community-script HTML blob — nie ma sensu tego trzymać w .tf
+      description, # community-script HTML blob — nie ma sensu tego trzymać w .tf
       tags,
     ]
   }
-}	
+}

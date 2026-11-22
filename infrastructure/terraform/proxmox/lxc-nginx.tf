@@ -4,10 +4,10 @@ resource "proxmox_virtual_environment_container" "ProxmoxNginx" {
   unprivileged = true
 
   initialization {
-    hostname = "ProxmoxNginx"
+    hostname = "Proxy-Nginx"
     ip_config {
       ipv4 {
-        address = "192.168.1.130/24"
+        address = "192.168.1.103/24"
         gateway = "192.168.1.1"
       }
     }

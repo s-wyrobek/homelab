@@ -3,10 +3,10 @@ resource "proxmox_virtual_environment_container" "ProxmoxVault" {
   vm_id        = 106
   unprivileged = true
   initialization {
-    hostname = "ProxmoxVault"
+    hostname = "Secrets-Vault"
     ip_config {
       ipv4 {
-        address = "192.168.1.160/24"
+        address = "192.168.1.106/24"
         gateway = "192.168.1.1"
       }
     }
