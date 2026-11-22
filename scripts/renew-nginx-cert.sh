@@ -5,13 +5,13 @@
 # Token czytany z $VAULT_TOKEN albo pytany interaktywnie (nie jest nigdzie zapisywany).
 #
 #   ./scripts/renew-nginx-cert.sh            # domyślne SAN-y
-#   PKI_TTL=720h ./scripts/renew-nginx-cert.sh
+#   PKI_TTL=168h ./scripts/renew-nginx-cert.sh   # krótszy certyfikat
 set -euo pipefail
 
 VAULT_ADDR="${VAULT_ADDR:-http://192.168.1.106:8200}"
 PKI_PATH="${PKI_PATH:-pki}"
 PKI_ROLE="${PKI_ROLE:-homelab-dot-home}"
-PKI_TTL="${PKI_TTL:-8760h}"          # Vault przytnie do max_ttl roli
+PKI_TTL="${PKI_TTL:-720h}"           # = max_ttl roli homelab-dot-home
 NGINX_HOST="${NGINX_HOST:-proxy-nginx}"
 CERT_DIR="/etc/nginx/ssl"
 
@@ -75,5 +75,6 @@ ssh "$NGINX_HOST" "set -e
   fi"
 
 echo "Sprawdzenie na żywo:"
+sleep 2   # reload jest asynchroniczny — daj workerom chwilę na wymianę
 echo | openssl s_client -connect 192.168.1.103:443 -servername dash.home 2>/dev/null \
   | openssl x509 -noout -enddate
