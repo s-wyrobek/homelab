@@ -10,7 +10,7 @@
           password: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
           node: Proxmox
           verify: false
-          fields: ["vms", "lxc", "cpu", "mem"]
+          fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
     - AdGuard Home:
         href: "http://dns.home"
         description: DNS + blokowanie reklam (Raspberry Pi)
@@ -34,16 +34,28 @@
         icon: d-link.png
     - Nginx:
         href: "http://nginx.home"
-        description: Reverse proxy
+        description: Reverse proxy (LXC 103)
         icon: nginx.png
+        proxmoxNode: Proxmox
+        proxmoxVMID: 103
+        proxmoxType: lxc
+        showStats: true
     - Zabbix:
         href: "http://zabbix.home"
-        description: Monitoring
+        description: Monitoring (LXC 105)
         icon: zabbix.png
+        proxmoxNode: Proxmox
+        proxmoxVMID: 105
+        proxmoxType: lxc
+        showStats: true
     - Vault:
         href: "http://vault.home"
-        description: Secrets & PKI
+        description: Secrets & PKI (LXC 106)
         icon: vault.png
+        proxmoxNode: Proxmox
+        proxmoxVMID: 106
+        proxmoxType: lxc
+        showStats: true
     - NetBird:
         href: "https://app.netbird.io"
         description: Mesh VPN (zastąpił WireGuard/wg-easy)
@@ -52,8 +64,12 @@
 - Serwisy:
     - Nextcloud:
         href: "http://dysk.home"
-        description: Nextcloud storage
+        description: Nextcloud storage (LXC 102)
         icon: nextcloud.png
+        proxmoxNode: Proxmox
+        proxmoxVMID: 102
+        proxmoxType: lxc
+        showStats: true
         widget:
           type: nextcloud
           url: http://192.168.1.102:8080
@@ -72,16 +88,23 @@
           password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
     - Prometheus:
         href: "http://prometheus.home"
-        description: Monitoring
+        description: Metryki k3s
         icon: prometheus.png
+        widget:
+          type: prometheus
+          url: http://prometheus.home
     - n8n:
         href: "http://n8n.home"
         description: Automatyzacje
         icon: n8n.png
     - Traefik:
         href: "http://traefik-k3s.home"
-        description: Ingress controller
+        description: Ingress controller (VM 100 debian-01)
         icon: traefik.png
+        proxmoxNode: Proxmox
+        proxmoxVMID: 100
+        proxmoxType: qemu
+        showStats: true
 
 - DevOps:
     - Terraform:
@@ -94,5 +117,9 @@
         icon: ansible.png
     - Floci:
         href: "https://floci.home"
-        description: Lokalny emulator AWS (zastąpił LocalStack)
+        description: Lokalny emulator AWS (LXC 107)
         icon: aws.png
+        proxmoxNode: Proxmox
+        proxmoxVMID: 107
+        proxmoxType: lxc
+        showStats: true

@@ -1,5 +1,7 @@
 ---
-# pve:
-#   url: https://proxmox.host.or.ip:8006
-#   token: username@pam!Token ID
-#   secret: secret
+# Proxmox API dla statystyk CPU/RAM per usługa (proxmoxNode/proxmoxVMID w services.yaml).
+# Ten sam token co widget Proxmox; sekret tylko w ~/homepage/.env na serwerze.
+Proxmox:
+  url: https://192.168.1.252:8006
+  token: root@pam!homepage
+  secret: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
