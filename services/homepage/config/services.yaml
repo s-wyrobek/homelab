@@ -1,0 +1,98 @@
+- Infrastruktura:
+    - Proxmox:
+        href: "https://proxmox.home:8006"
+        description: Hypervisor
+        icon: proxmox.png
+        widget:
+          type: proxmox
+          url: https://192.168.1.252:8006
+          username: root@pam!homepage
+          password: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
+          node: Proxmox
+          verify: false
+          fields: ["vms", "lxc", "cpu", "mem"]
+    - AdGuard Home:
+        href: "http://dns.home"
+        description: DNS + blokowanie reklam (Raspberry Pi)
+        icon: adguard-home.png
+        widget:
+          type: adguard
+          url: http://192.168.1.253
+          username: szymon
+          password: "{{HOMEPAGE_VAR_ADGUARD_PASSWORD}}"
+    - Router:
+        href: "http://router.home"
+        description: 5G CPE
+        icon: router.png
+    - AC Góra:
+        href: "http://gora-ac.home"
+        description: TP-Link TL-MR6400
+        icon: tp-link.png
+    - AC Dół:
+        href: "http://dol-ac.home"
+        description: D-Link DIR-842
+        icon: d-link.png
+    - Nginx:
+        href: "http://nginx.home"
+        description: Reverse proxy
+        icon: nginx.png
+    - Zabbix:
+        href: "http://zabbix.home"
+        description: Monitoring
+        icon: zabbix.png
+    - Vault:
+        href: "http://vault.home"
+        description: Secrets & PKI
+        icon: vault.png
+    - NetBird:
+        href: "https://app.netbird.io"
+        description: Mesh VPN (zastąpił WireGuard/wg-easy)
+        icon: netbird.png
+
+- Serwisy:
+    - Nextcloud:
+        href: "http://dysk.home"
+        description: Nextcloud storage
+        icon: nextcloud.png
+        widget:
+          type: nextcloud
+          url: http://192.168.1.102:8080
+          username: admin
+          password: "{{HOMEPAGE_VAR_NEXTCLOUD_PASSWORD}}"
+
+- K3s:
+    - Grafana:
+        href: "http://grafana.home"
+        description: Metryki i dashboardy
+        icon: grafana.png
+        widget:
+          type: grafana
+          url: http://grafana.home
+          username: admin
+          password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
+    - Prometheus:
+        href: "http://prometheus.home"
+        description: Monitoring
+        icon: prometheus.png
+    - n8n:
+        href: "http://n8n.home"
+        description: Automatyzacje
+        icon: n8n.png
+    - Traefik:
+        href: "http://traefik-k3s.home"
+        description: Ingress controller
+        icon: traefik.png
+
+- DevOps:
+    - Terraform:
+        href: "https://github.com/s-wyrobek/homelab/tree/main/infrastructure/terraform"
+        description: Proxmox provisioning
+        icon: terraform.png
+    - Ansible:
+        href: "https://github.com/s-wyrobek/homelab/tree/main/ansible"
+        description: Configuration management
+        icon: ansible.png
+    - Floci:
+        href: "https://floci.home"
+        description: Lokalny emulator AWS (zastąpił LocalStack)
+        icon: aws.png

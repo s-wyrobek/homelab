@@ -1,0 +1,30 @@
+- greeting:
+    text_size: xl
+    text: "Cześć, Szymon 👋"
+- datetime:
+    text_size: l
+    format:
+      timeStyle: short
+      dateStyle: long
+      hourCycle: h23
+- openmeteo:
+    label: Kraków
+    latitude: 50.0647
+    longitude: 19.9450
+    timezone: Europe/Warsaw
+    units: metric
+    cache: 5
+- resources:
+    label: Dash-Homepage (LXC 108)
+    cpu: true
+    memory: true
+    disk: /
+- search:
+    provider: google
+    target: _blank
+
+# Usunięty widget "kubernetes" (cluster-wide CPU/mem stats) - działał bo Homepage
+# siedział WEWNĄTRZ k3s z automatycznym service account. Teraz Homepage jest
+# na zewnątrz klastra (Docker na zwykłym LXC), więc ten widget wymagałby
+# zamontowania kubeconfig i osobnej weryfikacji czy Homepage wspiera external
+# cluster mode. Do sprawdzenia osobno, jeśli chcesz to odzyskać.
