@@ -1,5 +1,7 @@
 # AdGuard Home
 
+> **Retired.** The `dns` LXC (101) no longer exists on Proxmox — AdGuard Home now runs on the Pi bastion (`192.168.1.253`). Kept for history only.
+
 Network-wide DNS resolver and ad/tracker blocker for the lab.
 Runs in a dedicated LXC container (`dns`, `192.168.1.110`).
 

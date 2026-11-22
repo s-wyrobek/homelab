@@ -10,37 +10,45 @@ Used as a learning environment for infrastructure, networking, automation, and s
 
 ## Stack
 
-| Layer            | Technology                                                              |
-| ---------------- | ----------------------------------------------------------------------- |
-| Hypervisor       | Proxmox VE 9.1                                                          |
-| Guest OS (VM)    | Debian 12                                                               |
-| Containers (LXC) | Debian 12 templates                                                     |
-| Orchestration    | k3s (single-node)                                                       |
-| Ingress          | Traefik (k3s) + Nginx (LXC reverse proxy)                               |
-| DNS              | AdGuard Home (DoH upstream, DNSSEC, blocklists)                         |
-| Monitoring       | Zabbix (Proxmox + LXC), Grafana + Prometheus (k3s)                     |
-| IaC              | Terraform (`bpg/proxmox` provider), Ansible                             |
-| Secrets          | BitWarden (manual), Vault (planned)                                     |
-| Cloud emulation  | LocalStack Pro (AWS: S3, IAM, SQS, DynamoDB)                           |
-| Workstation      | Ninkear A15 Plus — Ubuntu 26.04, zsh + OhMyZsh + Starship              |
+| Layer            | Technology                                                               |
+| ----------------- | ------------------------------------------------------------------------ |
+| Hypervisor        | Proxmox VE 9.1                                                           |
+| Guest OS (VM)     | Debian 12                                                                |
+| Containers (LXC)  | Debian 12 templates                                                      |
+| Orchestration     | k3s (single-node)                                                       |
+| Ingress           | Traefik (k3s) + Nginx (LXC reverse proxy)                                |
+| DNS               | AdGuard Home (on Raspberry Pi bastion) + NetBird nameserver group        |
+| Remote access     | NetBird mesh VPN (Raspberry Pi routing peer) + WireGuard/wg-easy (LAN)   |
+| Monitoring        | Zabbix (Proxmox + LXC), Grafana + Prometheus (k3s)                      |
+| IaC               | Terraform (`bpg/proxmox` provider), Ansible                              |
+| Secrets / PKI     | HashiCorp Vault (Raft, Shamir 3-of-5, PKI backend for `*.home` certs)    |
+| CI/CD             | GitHub Actions (gitleaks, Trivy IaC scan, ansible-lint) + self-hosted GitLab Runner |
+| Cloud emulation   | Cloud-Floci (open-source LocalStack replacement, MIT, port 4566)        |
+| Workstation       | Ninkear A15 Plus — Ubuntu 26.04, zsh + OhMyZsh + Starship               |
+
+> Dropped LocalStack Pro in favor of **Cloud-Floci** (MIT-licensed LocalStack replacement) to avoid the Pro-only persistence paywall.
 
 ---
 
 ## Infrastructure
 
-| Host      | Type | IP              | Role                              | OS             |
-| --------- | ---- | --------------- | --------------------------------- | -------------- |
-| Proxmox   | Host | 192.168.1.100   | Proxmox VE hypervisor             | Proxmox VE 9.1 |
-| Ninkear   | WS   | 192.168.1.22    | Primary workstation               | Ubuntu 26.04   |
-| T490      | WS   | 192.168.1.23    | LocalStack node (headless)        | EndeavourOS    |
-| debian-01 | VM   | 192.168.1.24    | k3s cluster                       | Debian 12      |
-| dns       | LXC  | 192.168.1.110   | AdGuard Home                      | Debian 12      |
-| nextcloud | LXC  | 192.168.1.120   | Nextcloud + MariaDB               | Debian 12      |
-| nginx     | LXC  | 192.168.1.130   | Nginx reverse proxy + TLS         | Debian 12      |
-| wireguard | LXC  | 192.168.1.140   | WireGuard VPN (wg-easy)           | Debian 12      |
-| zabbix    | LXC  | 192.168.1.150   | Zabbix monitoring server          | Debian 12      |
+| Host           | Type | IP                       | Role                                          | OS             |
+| -------------- | ---- | ------------------------ | ---------------------------------------------- | -------------- |
+| Proxmox        | Host | 192.168.1.252            | Proxmox VE hypervisor                          | Proxmox VE 9.1 |
+| Ninkear        | WS   | 192.168.1.22              | Primary workstation                            | Ubuntu 26.04   |
+| T490           | WS   | 192.168.1.23              | Cloud-Floci node (headless)                    | EndeavourOS    |
+| debian-01      | VM   | 192.168.1.24              | k3s cluster (VMID 100)                         | Debian 12      |
+| Raspberry Pi 4B| SBC  | 192.168.1.253             | NetBird routing peer + AdGuard Home (DNS)      | Raspberry Pi OS Lite |
+| Disk-Nextcloud | LXC 102 | 192.168.1.102          | Nextcloud + MariaDB (Docker, :8080)            | Debian 12      |
+| Proxy-Nginx    | LXC 103 | 192.168.1.103          | Nginx reverse proxy + TLS                      | Debian 12      |
+| Monitor-Zabbix | LXC 105 | 192.168.1.105          | Zabbix monitoring server                       | Debian 12      |
+| Secrets-Vault  | LXC 106 | 192.168.1.106          | HashiCorp Vault (PKI for `*.home`)             | Debian 12      |
+| Cloud-Floci    | LXC 107 | 192.168.1.107          | Cloud-Floci (LocalStack replacement, :4566)    | Debian 12      |
+| Dash-Homepage  | LXC 108 | 192.168.1.108          | Homepage dashboard (Docker, :3000)             | Debian 12      |
 
 Hardware: AMD Ryzen 5 3400G, 16 GB RAM, single node.
+
+> All LXC containers follow the `VMID = last IP octet` convention. The old `dns` (101) and `wireguard` (104) LXCs were retired — DNS moved to AdGuard on the Pi bastion, remote access to NetBird.
 
 ---
 
@@ -59,54 +67,69 @@ Internet ────► │  ISP CPE router      │  5G CPE
            │ Wi-Fi  │ │  PVE   │ │  Workstations │
            │  APs   │ │  host  │ │  Ninkear/T490 │
            └────────┘ └────────┘ └───────────────┘
+                          │
+               ┌──────────▼───────────┐
+               │ Raspberry Pi bastion  │  NetBird routing peer (100.99.79.192)
+               │ 192.168.1.253         │  routes 192.168.1.0/24 to the NetBird mesh
+               └───────────────────────┘
 ```
 
 LAN: `192.168.1.0/24`
-DNS: `192.168.1.110` (AdGuard Home) via DHCP
-TLS: Custom CA (`~/homelab-ca/ca.crt`), explicit SANs per service
+DNS: `192.168.1.253` (AdGuard Home on the Pi bastion)
+Remote access: NetBird mesh (via Pi bastion)
+TLS: Custom CA (`~/homelab-ca/ca.crt`) + Vault PKI role `homelab-dot-home`, explicit SANs per service
 
 ---
 
 ## Local domains (`.home`)
 
-| Domain              | Target                          |
-| ------------------- | ------------------------------- |
-| `proxmox.home`      | Proxmox UI (192.168.1.100:8006) |
-| `dns.home`          | AdGuard Home                    |
-| `dysk.home`         | Nextcloud                       |
-| `grafana.home`      | Grafana (k3s)                   |
-| `prometheus.home`   | Prometheus (k3s)                |
-| `n8n.home`          | n8n (k3s)                       |
-| `traefik-k3s.home`  | Traefik dashboard (k3s)         |
-| `homepage.home`     | Homepage dashboard (k3s)        |
-| `zabbix.home`       | Zabbix monitoring               |
+| Domain              | Target                             |
+| ------------------- | ----------------------------------- |
+| `proxmox.home`      | Proxmox UI (192.168.1.252:8006)     |
+| `dns.home`          | AdGuard Home (Pi, 192.168.1.253)    |
+| `dysk.home`         | Nextcloud                           |
+| `grafana.home`      | Grafana (k3s)                       |
+| `prometheus.home`   | Prometheus (k3s)                    |
+| `n8n.home`          | n8n (k3s)                           |
+| `traefik-k3s.home`  | Traefik dashboard (k3s)             |
+| `homepage.home`     | Homepage dashboard (Docker, LXC)    |
+| `zabbix.home`       | Zabbix monitoring                   |
+| `vault.home`        | HashiCorp Vault UI                  |
+| `floci.home`        | Cloud-Floci (LocalStack replacement)|
 
-All `.home` domains → AdGuard rewrite → Nginx LXC (192.168.1.130) → upstream service.
+Most `.home` domains → AdGuard rewrite → Nginx LXC (192.168.1.103) → upstream service; k3s services (`grafana`, `prometheus`, `n8n`, `traefik-k3s`) point straight at debian-01 (192.168.1.24).
+Resolved on the LAN directly, and off-LAN via the NetBird nameserver group (`home` → 192.168.1.253).
 
 ---
 
 ## K3s services (debian-01)
 
 | Service    | Description                    |
-| ---------- | ------------------------------ |
-| Traefik    | Ingress controller             |
-| Grafana    | Metrics dashboards             |
-| Prometheus | Metrics collection             |
-| n8n        | Workflow automation            |
-| Homepage   | Self-hosted dashboard          |
+| ---------- | ------------------------------- |
+| Traefik    | Ingress controller              |
+| Grafana    | Metrics dashboards               |
+| Prometheus | Metrics collection                |
+| n8n        | Workflow automation                |
+
+> Homepage was migrated off k3s to a Docker container (LXC) — remove the old k3s Homepage release once confirmed unused.
 
 ---
 
-## LocalStack (T490)
+## Cloud emulation (T490)
 
-AWS emulation via LocalStack Pro (free tier). Persistent resources via `init-localstack.sh`:
+AWS-compatible emulation via **Cloud-Floci** (open-source, MIT, replaces LocalStack Pro to avoid the persistence paywall). Port `4566`, same `awslocal`-style workflow as LocalStack.
 
-- S3: `app-logs`, `app-backups`
-- IAM: `szymon-cloud-engineer` + S3FullAccess policy
-- SQS: `app-events`
-- DynamoDB: `app-data`
+---
 
-GUI: `localhost.localstack.cloud:4566` — requires SSH tunnel (`tunnel-ls` alias).
+## CI/CD
+
+GitHub Actions (`.github/workflows/security-scan.yml`):
+- **gitleaks** — secret scanning, extended with custom rules in [`.gitleaks.toml`](.gitleaks.toml) for NetBird/Vault/Proxmox/WireGuard secrets
+- **Trivy IaC scan** — Terraform misconfiguration scanning (`infrastructure/terraform/proxmox`); replaces the deprecated `tfsec-action`
+- **ansible-lint** — lints `ansible/`
+- **block-state-files** — fails the build if `terraform.tfstate*` is ever tracked
+
+Self-hosted **GitLab Runner** (in an LXC, LAN access) also runs real `terraform plan` against the homelab for the separate GitLab.com project.
 
 ---
 
@@ -115,48 +138,53 @@ GUI: `localhost.localstack.cloud:4566` — requires SSH tunnel (`tunnel-ls` alia
 ```
 .
 ├── README.md
-├── ansible/                  # Ansible playbooks
+├── .gitleaks.toml             # custom gitleaks rules (NetBird/Vault/Proxmox/WireGuard)
+├── ansible/                   # Ansible playbooks
 │   ├── inventory.yaml
-│   └── configure-ninkear.yaml
+│   ├── apt-upgrade.yaml
+│   ├── configure-ninkear.yaml
+│   └── services-check.yaml
 ├── docs/
 │   ├── decisions.md
 │   └── roadmap.md
 ├── infrastructure/
 │   ├── proxmox/README.md
 │   ├── network/README.md
-│   └── terraform/            # Proxmox provisioning (bpg/proxmox)
-├── k3s/                      # Kubernetes manifests
-├── localstack/               # LocalStack docker-compose + init script
+│   └── terraform/             # Proxmox provisioning (bpg/proxmox)
+├── k3s/                       # Kubernetes manifests
+├── localstack/                # Cloud-Floci docker-compose + init script
 ├── scripts/
-│   ├── lab-up.sh             # Wake-on-LAN: Proxmox + T490
-│   └── lab-down.sh           # SSH poweroff both hosts
+│   ├── lab-up.sh              # Wake-on-LAN
+│   └── lab-down.sh            # SSH poweroff
 ├── services/
 │   └── ...
 └── workstation/
-    └── setup.sh              # Ninkear bootstrap script
+    └── setup.sh                # Ninkear bootstrap script
 ```
 
 ---
 
-## Roadmap
+## Roadmap (summary — see [docs/roadmap.md](docs/roadmap.md) for the full phased plan)
 
 - [x] Proxmox VE installed and tuned
-- [x] AdGuard Home as local resolver
+- [x] AdGuard Home as local resolver (now on Raspberry Pi bastion)
 - [x] Nextcloud + MariaDB
 - [x] Nginx reverse proxy + custom TLS CA
 - [x] WireGuard VPN (wg-easy)
-- [x] k3s cluster (Traefik, Grafana, Prometheus, n8n, Homepage)
+- [x] k3s cluster (Traefik, Grafana, Prometheus, n8n)
 - [x] Terraform — Proxmox provisioning (`bpg/proxmox`)
-- [x] Ansible — workstation config (`configure-ninkear.yaml`)
-- [x] LocalStack — AWS emulation (S3, IAM, SQS, DynamoDB)
-- [x] Wake-on-LAN scripts (Proxmox + T490)
+- [x] Ansible — workstation config + service health checks
+- [x] Cloud-Floci — open-source LocalStack replacement (S3, IAM, SQS, DynamoDB)
+- [x] Wake-on-LAN scripts
 - [x] Zabbix monitoring (Proxmox VE by HTTP template)
-- [ ] Zabbix Agent2 on debian-01 (Docker/k3s monitoring)
-- [ ] Firefox root CA automation via Ansible
-- [ ] debian-01 DNS fix (AdGuard instead of 1.1.1.1)
-- [ ] HashiCorp Vault as PKI backend
-- [ ] GitLab CI/CD pipeline
-- [ ] NetBird mesh VPN (planned)
+- [x] HashiCorp Vault as PKI backend for `*.home` certs
+- [x] NetBird mesh VPN via Raspberry Pi bastion (routing peer + DNS)
+- [x] GitHub Actions CI (gitleaks, Trivy IaC scan, ansible-lint)
+- [x] LXC renumbering (VMID = last IP octet), Terraform in sync with Proxmox
+- [ ] Proxmox host IP renumbering (.100 → .252) — host, SSH config, AdGuard rewrite and Terraform done; DHCP reservation and `/etc/hosts` on the node still pending
+- [ ] Fix `homepage.home` rewrite (points at k3s .24, Homepage now on LXC 108)
+- [ ] Zabbix Agent2 on debian-01
+- [ ] GitLab CI/CD pipeline (self-hosted runner exists, pipeline still WIP)
 
 ---
 

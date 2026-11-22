@@ -1,7 +1,7 @@
 # Nextcloud
 
 Self-hosted file sync, calendar, and contacts. Runs on the `nextcloud` LXC
-(`192.168.1.120`) using Docker Compose, with MariaDB as the backing database.
+(LXC 102, `192.168.1.102`) using Docker Compose, with MariaDB as the backing database.
 
 Accessed locally at **http://nextcloud.home:8080** (TLS via reverse proxy is on the roadmap).
 
@@ -72,7 +72,7 @@ After that, the admin user defined in `NEXTCLOUD_ADMIN_USER` can log in.
 |-----------------------|--------------------------------------|
 | Web UI (current)      | `http://nextcloud.home:8080`         |
 | Web UI (planned)      | `https://nextcloud.home` (via Nginx) |
-| LAN IP                | `192.168.1.120`                      |
+| LAN IP                | `192.168.1.102`                      |
 
 `nextcloud.home` is resolved by AdGuard Home through a DNS rewrite — see
 [services/dns/README.md](../dns/README.md).

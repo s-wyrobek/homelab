@@ -32,11 +32,11 @@ without a discrete card, and the 4C/8T budget is plenty for the current workload
 
 | Endpoint     | Address                          | Notes                         |
 |--------------|----------------------------------|-------------------------------|
-| Web UI       | `https://192.168.1.100:8006`     | Admin only, root via PAM      |
-| SSH          | `ssh root@192.168.1.100`         | Key-based auth (no passwords) |
+| Web UI       | `https://192.168.1.252:8006`     | Admin only, root via PAM      |
+| SSH          | `ssh root@192.168.1.252`         | Key-based auth (no passwords) |
 
 Web UI access is restricted to the LAN. No port is exposed to the internet.
-Remote access is planned through WireGuard, not by exposing the Proxmox UI.
+Remote access goes through the NetBird mesh (Pi bastion), not by exposing the Proxmox UI.
 
 ---
 
@@ -44,11 +44,15 @@ Remote access is planned through WireGuard, not by exposing the Proxmox UI.
 
 | ID  | Hostname    | Type | IP             | vCPU | RAM    | Role                                         |
 |-----|-------------|------|----------------|------|--------|----------------------------------------------|
-| 101 | debian-01   | VM   | 192.168.1.24   | 2    | 4 GB   | k3s node (Traefik, Grafana, Prometheus, n8n) |
-| 110 | dns         | LXC  | 192.168.1.110  | 1    | 512 MB | AdGuard Home                                 |
-| 120 | nextcloud   | LXC  | 192.168.1.120  | 2    | 2 GB   | Nextcloud + MariaDB                          |
-| 130 | nginx       | LXC  | 192.168.1.130  | 1    | 512 MB | Nginx reverse proxy + wildcard TLS           |
-| 140 | wireguard   | LXC  | 192.168.1.140  | 1    | 512 MB | WireGuard VPN (wg-easy)                      |
+| 100 | Debian-01      | VM   | 192.168.1.24   | 4    | 4 GB   | k3s node (Traefik, Grafana, Prometheus, n8n) |
+| 102 | Disk-Nextcloud | LXC  | 192.168.1.102  | 2    | 2 GB   | Nextcloud + MariaDB (Docker)                 |
+| 103 | Proxy-Nginx    | LXC  | 192.168.1.103  | 1    | 512 MB | Nginx reverse proxy + wildcard TLS           |
+| 105 | Monitor-Zabbix | LXC  | 192.168.1.105  | 2    | 4 GB   | Zabbix server                                |
+| 106 | Secrets-Vault  | LXC  | 192.168.1.106  | 2    | 1 GB   | HashiCorp Vault (PKI for `*.home`)           |
+| 107 | Cloud-Floci    | LXC  | 192.168.1.107  | 2    | 2 GB   | Cloud-Floci (LocalStack replacement)         |
+| 108 | Dash-Homepage  | LXC  | 192.168.1.108  | 1    | 1 GB   | Homepage dashboard (Docker)                  |
+
+LXC VMIDs match the last octet of their IP. Retired: 101 `dns` (→ AdGuard on the Pi), 104 `wireguard` (→ NetBird).
 
 LXC is preferred for single-purpose services with a small footprint (DNS, web apps).
 VMs are used where a full kernel is required (Docker host, future k3s nodes).

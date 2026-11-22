@@ -30,23 +30,15 @@ Two access points cover Wi-Fi. VLANs are planned but not yet enabled.
                                       │        │                  │
                             ┌─────────▼──┐  ┌──▼──────────────┐  ┌──▼──────────────┐
                             │ Proxmox VE │  │ Ninkear A15     │  │ LocalStack T490 │
-                            │192.168.1.100  │ .22             │  │ .23             │
+                            │192.168.1.252  │ .22             │  │ .23             │
                             │            │  │ Ubuntu 26.04    │  │ EndeavourOS     │
                             │ ┌────────┐ │  └─────────────────┘  └─────────────────┘
                             │ │debian-01│ │
                             │ │.24 (VM) │ │
                             │ ├────────┤ │
-                            │ │dns .110 │ │
-                            │ │(LXC)    │ │
-                            │ ├────────┤ │
-                            │ │nextcloud│ │
-                            │ │.120 LXC │ │
-                            │ ├────────┤ │
-                            │ │nginx    │ │
-                            │ │.130 LXC │ │
-                            │ ├────────┤ │
-                            │ │wireguard│ │
-                            │ │.140 LXC │ │
+                            │ │LXC 102- │ │
+                            │ │108 (.1xx│ │
+                            │ │=VMID)   │ │
                             │ └────────┘ │
                             └────────────┘
 ```
@@ -62,11 +54,14 @@ Two access points cover Wi-Fi. VLANs are planned but not yet enabled.
 | 192.168.1.22         | nikear (Ninkear A15 Plus workstation)      |
 | 192.168.1.23         | localstack (ThinkPad T490, headless node)  |
 | 192.168.1.24         | debian-01 (k3s node)                       |
-| 192.168.1.100        | pve (Proxmox VE host)                      |
-| 192.168.1.110        | dns (AdGuard Home)                         |
-| 192.168.1.120        | nextcloud (Nextcloud + MariaDB)            |
-| 192.168.1.130        | nginx (Nginx reverse proxy + TLS)          |
-| 192.168.1.140        | wireguard (WireGuard VPN)                  |
+| 192.168.1.102        | Disk-Nextcloud (Nextcloud + MariaDB)       |
+| 192.168.1.103        | Proxy-Nginx (Nginx reverse proxy + TLS)    |
+| 192.168.1.105        | Monitor-Zabbix (Zabbix server)             |
+| 192.168.1.106        | Secrets-Vault (HashiCorp Vault)            |
+| 192.168.1.107        | Cloud-Floci (LocalStack replacement)       |
+| 192.168.1.108        | Dash-Homepage (Homepage dashboard)         |
+| 192.168.1.252        | Proxmox VE host                            |
+| 192.168.1.253        | Raspberry Pi bastion (NetBird + AdGuard)   |
 | 192.168.1.200–250    | DHCP pool for clients                      |
 
 Infrastructure hosts use static IPs and matching DHCP reservations on the router.
@@ -75,7 +70,7 @@ Infrastructure hosts use static IPs and matching DHCP reservations on the router
 
 ## DNS
 
-AdGuard Home on `192.168.1.110` is the only DNS server advertised by DHCP.
+AdGuard Home on the Pi bastion (`192.168.1.253`) is the only DNS server advertised by DHCP.
 
 - **Upstream**: DNS-over-HTTPS to Cloudflare (`https://dns.cloudflare.com/dns-query`)
 - **DNSSEC**: enabled
@@ -94,18 +89,21 @@ no public DNS records exist for these names.
 
 | Hostname           | Target IP        | Service                      |
 |--------------------|------------------|------------------------------|
-| dns.home           | 192.168.1.110    | AdGuard Home UI              |
-| dysk.home          | 192.168.1.130    | Nextcloud (via Nginx)        |
-| nginx.home         | 192.168.1.130    | Nginx status page            |
+| proxmox.home       | 192.168.1.252    | Proxmox VE UI                |
+| dns.home           | 192.168.1.253    | AdGuard Home UI (Pi)         |
+| dysk.home          | 192.168.1.103    | Nextcloud (via Nginx)        |
+| nginx.home         | 192.168.1.103    | Nginx status page            |
+| vault.home         | 192.168.1.103    | Vault (via Nginx)            |
+| zabbix.home        | 192.168.1.103    | Zabbix (via Nginx)           |
 | grafana.home       | 192.168.1.24     | Grafana                      |
 | prometheus.home    | 192.168.1.24     | Prometheus                   |
 | n8n.home           | 192.168.1.24     | n8n automation               |
-| homepage.home      | 192.168.1.24     | Homepage dashboard           |
+| homepage.home      | 192.168.1.24     | Homepage dashboard (stale — should move to LXC 108) |
 | traefik-k3s.home   | 192.168.1.24     | Traefik dashboard            |
-| localstack.home    | 192.168.1.130    | LocalStack (via Nginx/HTTPS) |
+| localstack.home    | 192.168.1.103    | LocalStack (via Nginx/HTTPS) |
 
 All `.home` names are DNS rewrites in AdGuard Home. Traffic is routed through Nginx
-(192.168.1.130) for TLS termination with a locally-issued wildcard certificate (`*.home`).
+(192.168.1.103) for TLS termination with a locally-issued wildcard certificate (`*.home`).
 
 ---
 

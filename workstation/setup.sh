@@ -143,7 +143,7 @@ fi
 echo "🔒 Configuring DNS..."
 sudo tee /etc/systemd/resolved.conf > /dev/null << 'EOF'
 [Resolve]
-DNS=192.168.1.110
+DNS=192.168.1.253
 FallbackDNS=1.1.1.1
 DNSStubListener=yes
 EOF
