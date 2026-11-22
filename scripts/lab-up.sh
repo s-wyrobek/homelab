@@ -7,7 +7,7 @@ echo "WAKE UP HOMELAB..."
 echo "Proxmox (192.168.1.252)..."
 wakeonlan a8:a1:59:47:50:4b
 
-echo "T490/LocalStack (192.168.1.23)..."
+echo "T490 (192.168.1.23)..."
 wakeonlan 98:fa:9b:1b:cb:3a
 
 echo "Waiting for response..."

@@ -119,8 +119,8 @@ alias gl='git log --oneline -10'
 # ---- PATH ----
 export PATH=$PATH:~/.local/bin
 
-# ---- LocalStack endpoint ----
-export AWS_ENDPOINT_URL=http://192.168.1.23:4566
+# ---- Floci endpoint (LXC 107) ----
+export AWS_ENDPOINT_URL=http://192.168.1.107:4566
 
 # ---- SSH agent ----
 if [ -f ~/.ssh/id_ed25519 ]; then

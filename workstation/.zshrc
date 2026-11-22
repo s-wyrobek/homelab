@@ -112,7 +112,7 @@ alias gp='git push'
 alias gl='git log --oneline -10'
 
 export PATH=$PATH:~/.local/bin
-export AWS_ENDPOINT_URL=http://192.168.1.23:4566
+export AWS_ENDPOINT_URL=http://192.168.1.107:4566
 
 if [ -f ~/.ssh/id_ed25519 ]; then
   eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519

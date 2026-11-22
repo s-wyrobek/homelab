@@ -1,0 +1,13 @@
+services:
+  floci:
+    image: floci/floci:latest
+    container_name: floci
+    restart: unless-stopped
+    ports:
+      - "4566:4566"
+    volumes:
+      - floci-data:/var/lib/floci
+
+volumes:
+  floci-data:
+    external: true

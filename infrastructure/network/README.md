@@ -29,7 +29,7 @@ Two access points cover Wi-Fi. VLANs are planned but not yet enabled.
                   └───────────────┘   │        │                  │
                                       │        │                  │
                             ┌─────────▼──┐  ┌──▼──────────────┐  ┌──▼──────────────┐
-                            │ Proxmox VE │  │ Ninkear A15     │  │ LocalStack T490 │
+                            │ Proxmox VE │  │ Ninkear A15     │  │ T490 (spare)    │
                             │192.168.1.252  │ .22             │  │ .23             │
                             │            │  │ Ubuntu 26.04    │  │ EndeavourOS     │
                             │ ┌────────┐ │  └─────────────────┘  └─────────────────┘
@@ -52,7 +52,7 @@ Two access points cover Wi-Fi. VLANs are planned but not yet enabled.
 | 192.168.1.0/24       | LAN                                        |
 | 192.168.1.1          | Default gateway (ISP CPE router)           |
 | 192.168.1.22         | nikear (Ninkear A15 Plus workstation)      |
-| 192.168.1.23         | localstack (ThinkPad T490, headless node)  |
+| 192.168.1.23         | T490 (headless spare, LocalStack retired)  |
 | 192.168.1.24         | debian-01 (k3s node)                       |
 | 192.168.1.102        | Disk-Nextcloud (Nextcloud + MariaDB)       |
 | 192.168.1.103        | Proxy-Nginx (Nginx reverse proxy + TLS)    |
@@ -100,7 +100,8 @@ no public DNS records exist for these names.
 | n8n.home           | 192.168.1.24     | n8n automation               |
 | homepage.home      | 192.168.1.24     | Homepage dashboard (stale — should move to LXC 108) |
 | traefik-k3s.home   | 192.168.1.24     | Traefik dashboard            |
-| localstack.home    | 192.168.1.103    | LocalStack (via Nginx/HTTPS) |
+| floci.home         | 192.168.1.103    | Floci (via Nginx/HTTPS)      |
+| localstack.home    | 192.168.1.103    | Legacy alias → Floci         |
 
 All `.home` names are DNS rewrites in AdGuard Home. Traffic is routed through Nginx
 (192.168.1.103) for TLS termination with a locally-issued wildcard certificate (`*.home`).

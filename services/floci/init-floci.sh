@@ -2,22 +2,26 @@
 
 set -euo pipefail
 
-echo "Initalization LocalStack... "
+echo "Initializing Floci..."
 
 #Settings
-ENDPOINT="http://localhost.localstack.cloud:4566"
+# Floci (LXC 107) mówi API LocalStacka, łącznie z /_localstack/health.
+ENDPOINT="${AWS_ENDPOINT_URL:-http://192.168.1.107:4566}"
+export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-test}"
+export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-test}"
+export AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
 AWS_CMD="aws --endpoint-url=$ENDPOINT"
 
 #Health Check
-wait_for_localstack() {
-  echo "Waiting for LocalStack..."
-  until curl -s "$ENDPOINT/_localstack/health" | grep -qE '"s3": "(available|running)"'; do
+wait_for_floci() {
+  echo "Waiting for Floci at $ENDPOINT..."
+  until curl -s "$ENDPOINT/_localstack/health" | grep -qE '"s3": ?"(available|running)"'; do
     sleep 2
   done
-  echo "LocalStack up"
+  echo "Floci up"
 }
 
-wait_for_localstack
+wait_for_floci
 
 #S3
 
@@ -81,10 +85,10 @@ create_dynamodb_if_not_exists() {
 create_dynamodb_if_not_exists app-table
 
 echo "---------------------------------"
-echo "------LocalStack Initialized-----"
+echo "-------- Floci Initialized ------"
 echo "---------------------------------"
 echo "S3:       app-logs, app-backups"
-echo "IAM:      app-user (S3FullAccess)"
+echo "IAM:      szymon-cloud-engineer (S3FullAccess)"
 echo "SQS:      app-events"
-echo "DynamoDB: app-data"
+echo "DynamoDB: app-table"
 echo "---------------------------------"

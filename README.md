@@ -36,7 +36,7 @@ Used as a learning environment for infrastructure, networking, automation, and s
 | -------------- | ---- | ------------------------ | ---------------------------------------------- | -------------- |
 | Proxmox        | Host | 192.168.1.252            | Proxmox VE hypervisor                          | Proxmox VE 9.1 |
 | Ninkear        | WS   | 192.168.1.22              | Primary workstation                            | Ubuntu 26.04   |
-| T490           | WS   | 192.168.1.23              | Cloud-Floci node (headless)                    | EndeavourOS    |
+| T490           | WS   | 192.168.1.23              | Headless spare node (LocalStack retired)       | EndeavourOS    |
 | debian-01      | VM   | 192.168.1.24              | k3s cluster (VMID 100)                         | Debian 12      |
 | Raspberry Pi 4B| SBC  | 192.168.1.253             | NetBird routing peer + AdGuard Home (DNS)      | Raspberry Pi OS Lite |
 | Disk-Nextcloud | LXC 102 | 192.168.1.102          | Nextcloud + MariaDB (Docker, :8080)            | Debian 12      |
@@ -115,9 +115,13 @@ Resolved on the LAN directly, and off-LAN via the NetBird nameserver group (`hom
 
 ---
 
-## Cloud emulation (T490)
+## Cloud emulation (Floci, LXC 107)
 
-AWS-compatible emulation via **Cloud-Floci** (open-source, MIT, replaces LocalStack Pro to avoid the persistence paywall). Port `4566`, same `awslocal`-style workflow as LocalStack.
+AWS-compatible emulation via **Cloud-Floci** (open-source, MIT, replaces LocalStack Pro to avoid the persistence paywall). It speaks the LocalStack API, so existing tooling works unchanged.
+
+- Endpoint: `http://192.168.1.107:4566` (also `https://floci.home` and the legacy `https://localstack.home` via Nginx)
+- Data: Docker volume `floci-data` on LXC 107
+- Bootstrap resources (S3, IAM, SQS, DynamoDB): [`services/floci/init-floci.sh`](services/floci/init-floci.sh) — idempotent
 
 ---
 
@@ -152,11 +156,12 @@ Self-hosted **GitLab Runner** (in an LXC, LAN access) also runs real `terraform 
 │   ├── network/README.md
 │   └── terraform/             # Proxmox provisioning (bpg/proxmox)
 ├── k3s/                       # Kubernetes manifests
-├── localstack/                # Cloud-Floci docker-compose + init script
 ├── scripts/
 │   ├── lab-up.sh              # Wake-on-LAN
 │   └── lab-down.sh            # SSH poweroff
 ├── services/
+│   ├── floci/                 # Cloud-Floci compose + init script (LXC 107)
+│   ├── homepage/              # Homepage dashboard (LXC 108)
 │   └── ...
 └── workstation/
     └── setup.sh                # Ninkear bootstrap script
